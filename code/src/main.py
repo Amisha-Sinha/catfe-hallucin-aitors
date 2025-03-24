@@ -1,66 +1,92 @@
 from langgraph.prebuilt import create_react_agent
-from langchain_community.agent_toolkits.github.toolkit import GitHubToolkit
-from langchain_groq import ChatGroq
-from langchain_community.utilities.github import GitHubAPIWrapper
+from langchain import hub
+from langchain_core.prompts import PromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langgraph.checkpoint.memory import MemorySaver
+from db_tools import DatabaseConfig, MemoryTools
+from jira_tools import JIRAToolkit
 from github_tools import GitHubToolkit
-from langchain.memory import ConversationBufferMemory
+import uuid
+
 from dotenv import load_dotenv
 import os
 
 # Load environment variables from .env file
 load_dotenv()
-
-# Placeholder for OpenAI API key
 LLM_KEY = os.getenv("LLM_KEY")
 
-# Initialize the OpenAI LLM
-llm = ChatGroq(api_key=LLM_KEY, model="deepseek-r1-distill-llama-70b")
+# Initialize the LLM
+llm = ChatGoogleGenerativeAI(api_key=LLM_KEY, model="gemini-2.0-flash")
 
-toolkit = GitHubToolkit(auth_token=os.getenv("GITHUB_AUTH_TOKEN"), hostname="https://api.github.com", organization="payments-microservices")
+# Initialize the GitHub toolkit
+git_toolkit = GitHubToolkit(
+    auth_token=os.getenv("GITHUB_AUTH_TOKEN"),
+    hostname="https://api.github.com",
+    organization="payments-microservices"
+)
+jira_toolkit = JIRAToolkit(
+    email=os.getenv("JIRA_EMAIL"),
+    auth_token=os.getenv("JIRA_API_TOKEN")
+)
+config = DatabaseConfig(
+    payments_uri=os.getenv("PAYMENTS_URI"),
+    memories_uri=os.getenv("MEMORIES_URI")
+)
 
-# Create the Agentic system
-tools = toolkit.generate_tools()
-agentic_system = create_react_agent(llm, tools)
+# Initialize tools
+memory_toolkit = MemoryTools(config)
+tools = git_toolkit.generate_tools() + jira_toolkit.generate_tools() + memory_toolkit.generate_tools()
 
-# Detailed system prompt
-system_prompt = (
-    "You are an advanced AI system designed to traverse through the repository in the organization. "
-    "Your tasks include analyzing any files or pull requests (PRs) necessary, identifying code differences, "
-    "and using this analysis to assist in Behavior-Driven Development (BDD) testing. "
-    "You should be able to answer various queries with detailed and accurate answers, "
-    "providing insights into code structure, functionality, and any changes made in the repository. "
-    "Ensure your responses are comprehensive and tailored to the specific questions asked."
-    "Do not assume information or make it up. Always derive it from codebase and tools, ask the user in case anything is required"
-    "Do not verify your plan with the user. Execute the plan and ask for more information if needed"
-    "If you are ever creating edits, make sure to delete any prior fork before making a set onf new edits"
+# Initialize the in-memory checkpointer
+checkpointer = MemorySaver()
+
+
+# prompt = """
+# Question: the input question you must answer
+# Thought: you should always think about what to do
+# Action: the action to take, should be one of your tools
+# Action Input: the input to the action
+# Observation: the result of the action
+# ... (this Thought/Action/Action Input/Observation can repeat N times)
+# Thought: I now know the final answer
+# Final Answer: the final answer to the original input question"""
+
+
+# Create the agent with the checkpointer
+agentic_system = create_react_agent(
+    llm, 
+    tools, 
+    checkpointer=checkpointer,
+    # prompt=prompt
 )
 
 print("Chat system initialized. Type 'exit' to quit.")
-chat_history = [("system", system_prompt)]
+thread_id = str(uuid.uuid4())
+
 while True:
     user_input = input("You: ")
     if user_input.lower() == "exit":
         print("Exiting chat system.")
         break
+
+    config = {"configurable": {"thread_id": thread_id}}
     
-    # Add user input to chat history
-    chat_history.append(("user", user_input))
     
-    # Keep only the last 5 interactions in the chat history
-    chat_history = [chat_history[0],] + chat_history[-12:]
- 
+
+    # Use the agentic system to process the user input
     events = agentic_system.stream(
-        {"messages": chat_history},
+        {"messages": [(
+            "user", 
+            user_input
+        )]}, 
+        config=config,
         stream_mode="values"
     )
     
-    # Process and display the response
+    # Display the response
     for event in events:
         message = event["messages"][-1]
         if isinstance(message, tuple):
             print(message)
         else:
             message.pretty_print()
-        chat_history.append(("assistant", message.content))
-        # Keep only the last 12 interactions in the chat history
-        chat_history = [chat_history[0],] + chat_history[-12:]
