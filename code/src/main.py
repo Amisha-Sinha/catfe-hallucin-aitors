@@ -8,6 +8,10 @@ from jira_tools import JIRAToolkit
 from github_tools import GitHubToolkit
 import uuid
 import socket
+from flask import Flask
+from flask_socketio import SocketIO
+from flask_cors import CORS
+from langchain_core.messages import ToolMessage, AIMessage
 
 from dotenv import load_dotenv
 import os
@@ -39,15 +43,16 @@ jira_toolkit = JIRAToolkit(
 )
 logger.info("JIRA toolkit initialized.")
 
-config = DatabaseConfig(
-    payments_uri=os.getenv("PAYMENTS_URI"),
-    memories_uri=os.getenv("MEMORIES_URI")
-)
+# config = DatabaseConfig(
+#     payments_uri=os.getenv("PAYMENTS_URI"),
+#     memories_uri=os.getenv("MEMORIES_URI")
+# )
 logger.info("Database configuration initialized.")
 
 # Initialize tools
-memory_toolkit = MemoryTools(config)
-tools = git_toolkit.generate_tools() + jira_toolkit.generate_tools() + memory_toolkit.generate_tools()
+# memory_toolkit = MemoryTools(config)
+tools = git_toolkit.generate_tools() + jira_toolkit.generate_tools() 
+# + memory_toolkit.generate_tools()
 logger.info("Tools initialized.")
 
 # Initialize the in-memory checkpointer
@@ -63,53 +68,69 @@ agentic_system = create_react_agent(
 )
 logger.info("Agentic system created.")
 
-# Initialize the socket
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(('localhost', 12345))
-logger.info("Socket bound to localhost:12345.")
+# Initialize Flask and SocketIO
+app = Flask(__name__)
+# Enable CORS for the Flask app
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+# Update the Socket.IO initialization to allow CORS
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
 
-try:
-    server_socket.listen(1)
-    logger.info("Socket server initialized. Waiting for connection...")
-    
-    conn, addr = server_socket.accept()
-    logger.info(f"Connected by {addr}")
+@socketio.on('connect', namespace='/socket')
+def handle_connect():
+    logger.info("Client connected to /socket")
 
+@socketio.on('disconnect', namespace='/socket')
+def handle_disconnect():
+    logger.info("Client disconnected from /socket")
+
+@socketio.on('message', namespace='/socket/chat')
+def handle_message(data):
+    logger.info(f"Received message: {data}")
+    # Process the message using the agentic system
     thread_id = str(uuid.uuid4())
+    config = {"configurable": {"thread_id": thread_id}}
+    events = agentic_system.stream(
+        {"messages": [("user", data)]},
+        config=config,
+        stream_mode="values"
+    )
+    # Send the response back to the client
+    for event in events:
+        message = event["messages"][-1]
+        logger.info(f"Processing message: {message}")
 
-    while True:
-        user_input = conn.recv(1024).decode()
-        logger.info(f"Received input: {user_input}")
-        if not user_input or user_input.lower() == "exit":
-            logger.info("Exiting chat system.")
-            break
-
-        config = {"configurable": {"thread_id": thread_id}}
-
-        # Use the agentic system to process the user input
-        events = agentic_system.stream(
-            {"messages": [(
-                "user", 
-                user_input
-            )]}, 
-            config=config,
-            stream_mode="values"
-        )
-
-        # Send the response back through the socket
-        for event in events:
-            message = event["messages"][-1]
-            if isinstance(message, tuple):
-                response = str(message)
-                conn.sendall(response.encode())
-                logger.info(f"Sent response: {response}")
+        print("\n\n")
+        # Handle ToolMessage
+        if isinstance(message, ToolMessage):
+            if message.tool_call_id:
+                socketio.emit('tool_response', {
+                    "tool_name": message.name,
+                    "tool_call_id": message.tool_call_id,
+                    "content": message.content
+                }, namespace='/socket/chat')
+                logger.info(f"Sent tool response: {message.tool_call_id}")
             else:
-                response = message.pretty_print()
-                conn.sendall(response.encode())
-                logger.info(f"Sent response: {response}")
-except KeyboardInterrupt:
-    logger.info("KeyboardInterrupt received. Exiting chat system.")
-finally:
-    conn.close()
-    server_socket.close()
-    logger.info("Socket connection closed.")
+                socketio.emit('tool_response', {
+                    "tool_name": message.name,
+                    "content": message.content
+                }, namespace='/socket/chat')
+                logger.info(f"Sent tool response without tool_call_id: {message.content}")
+
+        # Handle AIMessage
+        elif isinstance(message, AIMessage):
+            if message.content:
+                socketio.emit('response', message.content, namespace='/socket/chat')
+                logger.info(f"Sent AI response: {message.content}")
+            if hasattr(message, "tool_calls") and message.tool_calls:
+                for tool_call in message.tool_calls:
+                    socketio.emit('tool_call', tool_call, namespace='/socket/chat')
+                    logger.info(f"Sent tool call: {tool_call}")
+
+        # Handle unexpected message types
+        else:
+            logger.warning(f"Unhandled message type: {type(message)}")
+            # socketio.emit('error', "Unhandled message type", namespace='/socket/chat')
+
+if __name__ == "__main__":
+    logger.info("Starting SocketIO server...")
+    socketio.run(app, host='localhost', port=12345)
