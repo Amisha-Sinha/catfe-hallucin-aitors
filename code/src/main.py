@@ -74,9 +74,12 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 # Update the Socket.IO initialization to allow CORS
 socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+thread_id=str(uuid.uuid4())
 
 @socketio.on('connect', namespace='/socket')
 def handle_connect():
+    global thread_id
+    thread_id = str(uuid.uuid4())
     logger.info("Client connected to /socket")
 
 @socketio.on('disconnect', namespace='/socket')
@@ -87,7 +90,6 @@ def handle_disconnect():
 def handle_message(data):
     logger.info(f"Received message: {data}")
     # Process the message using the agentic system
-    thread_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
     events = agentic_system.stream(
         {"messages": [("user", data)]},
@@ -99,7 +101,6 @@ def handle_message(data):
         message = event["messages"][-1]
         logger.info(f"Processing message: {message}")
 
-        print("\n\n")
         # Handle ToolMessage
         if isinstance(message, ToolMessage):
             if message.tool_call_id:
@@ -114,13 +115,13 @@ def handle_message(data):
                     "tool_name": message.name,
                     "content": message.content
                 }, namespace='/socket/chat')
-                logger.info(f"Sent tool response without tool_call_id: {message.content}")
+                logger.info(f"Sent tool response without tool_call_id: {message.name}")
 
         # Handle AIMessage
         elif isinstance(message, AIMessage):
             if message.content:
                 socketio.emit('response', message.content, namespace='/socket/chat')
-                logger.info(f"Sent AI response: {message.content}")
+                logger.info(f"Sent AI response")
             if hasattr(message, "tool_calls") and message.tool_calls:
                 for tool_call in message.tool_calls:
                     socketio.emit('tool_call', tool_call, namespace='/socket/chat')
@@ -129,7 +130,12 @@ def handle_message(data):
         # Handle unexpected message types
         else:
             logger.warning(f"Unhandled message type: {type(message)}")
-            # socketio.emit('error', "Unhandled message type", namespace='/socket/chat')
+
+        # Yield control to the event loop to ensure immediate emission
+        socketio.sleep(0)
+
+    logger.info("Finished processing all events.")
+    socketio.emit('end', 'end-stream', namespace='/socket/chat')
 
 if __name__ == "__main__":
     logger.info("Starting SocketIO server...")
