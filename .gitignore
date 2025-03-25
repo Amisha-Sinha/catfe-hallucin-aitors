@@ -173,4 +173,16 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-code/src/template_bdd_repo
+code/src/template_bdd_repo/
+code/src/ui/node_modules/
+code/src/ui/.next/
+code/src/ui/out/
+code/src/ui/build
+code/src/ui/npm-debug.log*
+code/src/ui/yarn-debug.log*
+code/src/ui/yarn-error.log*
+code/src/ui/.pnpm-debug.log*
+code/src/ui/.env*
+code/src/ui/.vercel
+code/src/ui/*.tsbuildinfo
+code/src/ui/next-env.d.ts
