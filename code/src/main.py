@@ -1,13 +1,11 @@
 import logging
 from langgraph.prebuilt import create_react_agent
-from langchain import hub
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.checkpoint.memory import MemorySaver
 from db_tools import DatabaseConfig, MemoryTools
 from jira_tools import JIRAToolkit
 from github_tools import GitHubToolkit
 import uuid
-import socket
 from flask import Flask
 from flask_socketio import SocketIO
 from flask_cors import CORS
@@ -43,16 +41,15 @@ jira_toolkit = JIRAToolkit(
 )
 logger.info("JIRA toolkit initialized.")
 
-# config = DatabaseConfig(
-#     payments_uri=os.getenv("PAYMENTS_URI"),
-#     memories_uri=os.getenv("MEMORIES_URI")
-# )
+config = DatabaseConfig(
+    payments_uri=os.getenv("PAYMENTS_URI"),
+    memories_uri=os.getenv("MEMORIES_URI")
+)
 logger.info("Database configuration initialized.")
 
 # Initialize tools
-# memory_toolkit = MemoryTools(config)
-tools = git_toolkit.generate_tools() + jira_toolkit.generate_tools() 
-# + memory_toolkit.generate_tools()
+memory_toolkit = MemoryTools(config)
+tools = git_toolkit.generate_tools() + jira_toolkit.generate_tools() + memory_toolkit.generate_tools()
 logger.info("Tools initialized.")
 
 # Initialize the in-memory checkpointer
