@@ -44,7 +44,7 @@ The project was inspired by the need to simplify the creation and upkeep of BDD 
 ## 🏃 How to Run
 1. Clone the repository  
    ```sh
-   git clone https://github.com/your-repo.git
+   git clone https://github.com/ewfx/catfe-hallucin-aitors
    ```
 2. Set up environment variables in a `.env` file:
    ```env
@@ -64,6 +64,7 @@ The project was inspired by the need to simplify the creation and upkeep of BDD 
    ```
 5. To run ui go to /ui
    ```sh
+   npm i --force
    npm run dev
    ```
 
