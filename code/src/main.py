@@ -57,9 +57,16 @@ checkpointer = MemorySaver()
 logger.info("In-memory checkpointer initialized.")
 
 
-# prompt = """You are an AI Agent that specializes in BDD Test Suites. Your job is to assist your users with any analysis required for BDD, creation of the BDD testing repo, and upkeep required for that repo
-# You have some instruction sets that are stored in your memory that will help you in this. These are related to bdd analysis, creation, upkeep, and some instructions to actually create the scenarios within the files
-# Whenever performing tasks, come up with a plan first and then execute it. Do not make up the data. You have all the sources you need for it."""
+prompt = """
+You are an AI Agent that specializes in BDD Test Suites. Your job is to assist your users with any analysis required for BDD, creation of the BDD testing repo, and upkeep required for that repo
+
+First step is ALWAYS to recall Specific instruction sets for the tasks you need to perform.
+DO NOT edit any files without recalling the instructions first.
+
+For analysis, Analyze ALL non bdd repos relevant
+
+BDD MUST be in Karate framework.
+You MUST refer to jira tickets for the tasks to be performed"""
 
 
 # Create the agent with the checkpointer
@@ -67,7 +74,7 @@ agentic_system = create_react_agent(
     llm, 
     tools, 
     checkpointer=checkpointer,
-    # prompt=prompt
+    prompt=prompt
 )
 logger.info("Agentic system created.")
 

@@ -116,6 +116,7 @@ class GitHubToolkit:
 
     def fork_repo(self, repo_name):
         try:
+            repo_name = repo_name.split("/")[-1]
             repo = self.org.get_repo(repo_name)
             # Check if a fork already exists and delete it
             user = self.client.get_user()
@@ -131,6 +132,7 @@ class GitHubToolkit:
 
     def push_commits_to_fork(self, repo_name, filename, content, title):
         try:
+            repo_name = repo_name.split("/")[-1]
             fork = self.client.get_repo(f"{self.client.get_user().login}/{repo_name}")
             if not fork:
                 return "Error: Fork does not exist."
@@ -146,6 +148,7 @@ class GitHubToolkit:
 
     def raise_pr_from_fork(self, repo_name, title):
         try:
+            repo_name = repo_name.split("/")[-1]
             fork = self.client.get_repo(f"{self.client.get_user().login}/{repo_name}")
             if not fork:
                 return "Error: Fork does not exist."
@@ -161,6 +164,7 @@ class GitHubToolkit:
             return f"Error raising PR from fork: {e}"
 
     def delete_fork(self, repo_name):
+        repo_name = repo_name.split("/")[-1]
         repo = self.client.get_repo(f"{self.client.get_user().login}/{repo_name}")
         repo.delete()
         return f"Fork {repo_name} deleted successfully."
@@ -247,3 +251,20 @@ class GitHubToolkit:
             raise_pr_from_fork_tool,  # Add the new tool to the list
             delete_fork_tool
         ]
+    
+
+from dotenv import load_dotenv
+load_dotenv()
+
+git_toolkit = GitHubToolkit(
+    auth_token=os.getenv("GITHUB_AUTH_TOKEN"),
+    hostname="https://api.github.com",
+    organization="payments-microservices"
+)
+
+print(git_toolkit.push_commits_to_fork(
+    repo_name="payments-backend-bdd-tests",
+    filename="README.md",
+    content="This is a test commit",
+    title="Update README"
+))
