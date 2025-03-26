@@ -5,7 +5,7 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import datetime
 import os
-from dotenv import load_dotenv
+from bson import ObjectId 
 
 
 # ------------------
@@ -58,6 +58,11 @@ class MemoryTools:
     class RecallMemorySchema(BaseModel):
         query_str: str = Field(..., description="The query to search memories")
         top_k: int = Field(3, description="Number of results to return")
+        
+    class UpdateMemorySchema(BaseModel):
+        memory_id: str = Field(..., description="The ID of the memory to update")
+        input_str: str = Field(..., description="The new information to replace the existing memory")
+
 
     # ------------------
     # Core Operations
@@ -102,13 +107,36 @@ class MemoryTools:
             for memory in all_memories:
                 mem_embedding = np.array(memory["embedding"])
                 similarity = np.dot(query_embedding, mem_embedding)
-                similarities.append((memory["text"], similarity))
+                similarities.append((memory["text"], similarity, memory["_id"]))
             
             sorted_memories = sorted(similarities, key=lambda x: x[1], reverse=True)
-            return [text for text, _ in sorted_memories[:top_k]]
+            return [{"text": text, "id": str(mem_id)} for text, _, mem_id in sorted_memories[:top_k]]
         except Exception as e:
             print(f"Recall error: {e}")
             return []
+
+    def update_memory(self, memory_id: str, input_str: str) -> bool:
+        """Update existing memory with new content and embedding"""
+        try:
+            db = self.memories_client["smart_stubs_db"]
+            collection = db.memories
+
+            new_embedding = self.embedder.encode(input_str).tolist()
+            
+            result = collection.update_one(
+                {"_id": ObjectId(memory_id)},
+                {
+                    "$set": {
+                        "text": input_str,
+                        "embedding": new_embedding,
+                        "timestamp": datetime.datetime.utcnow()
+                    }
+                }
+            )
+            return result.modified_count == 1
+        except Exception as e:
+            print(f"Update error: {e}")
+            return False
 
     # ------------------
     # Tool Generation
@@ -132,6 +160,12 @@ class MemoryTools:
                 name="RecallMemory",
                 description="MUST USE FIRST FOR ANY QUESTION. This tool retrieves stored memories that match the provided query, ensuring relevant information is surfaced efficiently.",
                 args_schema=self.RecallMemorySchema
+            ),
+            StructuredTool.from_function(
+                self.update_memory,
+                name="UpdateMemory",
+                description="Updates an existing memory by providing the memory ID to be retrieved fromRecallMemory and the new content.",
+                args_schema=self.UpdateMemorySchema
             )
         ]
 
