@@ -1,0 +1,11 @@
+Flask==2.3.2
+Flask-SocketIO==5.3.2
+Flask-Cors==3.0.10
+python-dotenv==1.0.0
+PyGithub==1.58.2
+pymongo==4.5.0
+sentence-transformers==2.2.2
+numpy==1.25.2
+requests==2.31.0
+langchain==0.0.208
+langchain-google-genai==0.0.3
