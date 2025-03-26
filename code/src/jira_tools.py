@@ -1,3 +1,4 @@
+import json
 import requests 
 from requests.auth import HTTPBasicAuth
 import os
@@ -8,6 +9,10 @@ from dotenv import load_dotenv
 
 class TicketSchema(BaseModel):
     ticket_id: str
+
+class TicketSchema1(BaseModel):
+    summary: str
+    description: str
 
 class SprintSchema(BaseModel):
     sprint_name: str
@@ -20,14 +25,13 @@ class JIRAToolkit:
     def __init__(self, email, auth_token):
         self.api_url = "https://throwawayfortrashplz.atlassian.net/rest/api/latest/"
         self.auth = HTTPBasicAuth(email, auth_token)
-    
-    def get_all_tickets_for_current_sprint(self):
-        url = self.api_url + "search/jql"
-        # print(url)
-        headers = {
+        self.headers = {
             "Accept": "application/json",
             "Content-Type": "application/json"
         }
+    
+    def get_all_tickets_for_current_sprint(self):
+        url = self.api_url + "search/jql"
 
         query = {
             'jql': "project = 'CPSX' AND sprint in openSprints()",
@@ -37,7 +41,7 @@ class JIRAToolkit:
         response = requests.request(
             "GET", 
             url,
-            headers=headers,
+            headers=self.headers,
             params=query,
             auth=self.auth
         )
@@ -53,10 +57,6 @@ class JIRAToolkit:
     
     def get_ticket_details(self, ticket_id):
         url = self.api_url + "search/jql"
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        }
 
         query = {
             'jql': f"key ={ticket_id}  AND project = 'CPSX'",
@@ -66,7 +66,7 @@ class JIRAToolkit:
         response = requests.request(
             "GET", 
             url,
-            headers=headers,
+            headers=self.headers,
             params=query,
             auth=self.auth
         )
@@ -79,6 +79,32 @@ class JIRAToolkit:
             description = issue["fields"].get("description", "No description entered")
             issues.append([key, summary, description])
         return issues
+    
+    def create_validation_ticket(self, summary, description):
+        url = self.api_url + "issue"
+        payload = json.dumps({
+            "fields": {
+                "project":
+                {
+                    "key" : "CPSX" 
+                },
+                "summary": f"{summary}",
+                "description": f"{description}" ,
+                "issuetype": {
+                    "id": "10003"
+                },
+                "labels": ["BDD_Validation"]
+            }
+        })
+        response = requests.request(
+            "POST",
+            url,
+            data=payload,
+            headers=self.headers,
+            auth=self.auth
+        )
+
+        return json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": "))
     
     def generate_tools(self):
         get_ticket_details_tool = StructuredTool.from_function(
@@ -95,7 +121,15 @@ class JIRAToolkit:
             args_schema = NoInputSchema
         )
 
+        create_validation_ticket_tool = StructuredTool.from_function(
+            self.create_validation_ticket,
+            name = "create_validation_ticket",
+            description = "Creates a JIRA ticket for validating the generated BDD test cases",
+            args_schema=TicketSchema1
+        )
+
         return [
             get_ticket_details_tool,
-            get_all_tickets_for_current_sprint_tool
+            get_all_tickets_for_current_sprint_tool,
+            create_validation_ticket_tool
         ]
