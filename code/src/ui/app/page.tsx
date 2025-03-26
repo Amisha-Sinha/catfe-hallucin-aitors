@@ -134,7 +134,7 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-screen mx-auto p-4" style={{ maxWidth: "80%", width: "100%" }}>
-      <h1 className="text-2xl font-bold mb-4">Repository Assistant</h1>
+      <h1 className="text-2xl font-bold mb-4">Behave Yourself - Your BDD Buddy</h1>
 
       <Card className="flex-1 overflow-hidden flex flex-col mb-4 p-4">
         <div className="flex-1 overflow-y-auto pb-4">

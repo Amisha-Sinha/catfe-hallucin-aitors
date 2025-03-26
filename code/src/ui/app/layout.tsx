@@ -6,9 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "AI Assistant",
-  description: "Chat with an AI assistant",
-    generator: 'v0.dev'
+  title: "Behave YourSelf",
+  description: "Chat with an AI assistant"
 }
 
 export default function RootLayout({

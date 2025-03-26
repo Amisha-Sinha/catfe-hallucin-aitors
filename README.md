@@ -1,4 +1,4 @@
-# 🚀 Project Name
+# 🚀 Behave Yourself
 
 ## 📌 Table of Contents
 - [Introduction](#introduction)
@@ -14,7 +14,7 @@
 ---
 
 ## 🎯 Introduction
-A brief overview of your project and its purpose. Mention which problem statement are your attempting to solve. Keep it concise and engaging.
+Behave Yourself is an AI-driven platform designed to assist developers in creating and maintaining Behavior-Driven Development (BDD) test suites. It integrates with GitHub and JIRA to streamline the process of managing repositories and tasks.
 
 ## 🎥 Demo
 🔗 [Live Demo](#) (if applicable)  
@@ -24,37 +24,58 @@ A brief overview of your project and its purpose. Mention which problem statemen
 ![Screenshot 1](link-to-image)
 
 ## 💡 Inspiration
-What inspired you to create this project? Describe the problem you're solving.
+The project was inspired by the need to simplify the creation and upkeep of BDD test repositories, ensuring seamless integration with existing workflows.
 
 ## ⚙️ What It Does
-Explain the key features and functionalities of your project.
+- Automates the creation of BDD repositories using a Karate framework template.
+- Integrates with GitHub for repository management (forking, pushing commits, raising PRs).
+- Connects with JIRA for task tracking and management.
+- Provides tools for analyzing repository structures and pull requests.
 
 ## 🛠️ How We Built It
-Briefly outline the technologies, frameworks, and tools used in development.
+- **Backend**: Python with Flask for API and Socket.IO for real-time communication.
+- **GitHub Integration**: Using `PyGithub` for repository and PR management.
+- **JIRA Integration**: Custom toolkit for task management.
+- **BDD Framework**: Karate template for test suite creation.
+- **Environment Management**: `.env` files for secure configuration.
 
 ## 🚧 Challenges We Faced
-Describe the major technical or non-technical challenges your team encountered.
+- Handling edge cases in GitHub API interactions (e.g., missing forks or file conflicts).
+- Ensuring compatibility with multiple repositories and frameworks.
+- Managing real-time updates with Socket.IO.
 
 ## 🏃 How to Run
 1. Clone the repository  
    ```sh
    git clone https://github.com/your-repo.git
    ```
-2. Install dependencies  
-   ```sh
-   npm install  # or pip install -r requirements.txt (for Python)
+2. Set up environment variables in a `.env` file:
+   ```env
+   GITHUB_AUTH_TOKEN=your_github_token
+   JIRA_EMAIL=your_jira_email
+   JIRA_API_TOKEN=your_jira_api_token
+   PAYMENTS_URI=your_payments_db_uri
+   MEMORIES_URI=your_memories_db_uri
    ```
-3. Run the project  
+3. Install dependencies  
    ```sh
-   npm start  # or python app.py
+   pip install -r requirements.txt
+   ```
+4. Run the Flask app  
+   ```sh
+   python src/main.py
    ```
 
 ## 🏗️ Tech Stack
-- 🔹 Frontend: React / Vue / Angular
-- 🔹 Backend: Node.js / FastAPI / Django
-- 🔹 Database: PostgreSQL / Firebase
-- 🔹 Other: OpenAI API / Twilio / Stripe
+- 🔹 **Backend**: Flask, Python
+- 🔹 **BDD Framework**: Karate
+- 🔹 **Database**: MongoDB
+- 🔹 **APIs**: GitHub API, JIRA API
+- 🔹 **Other Tools**: LangChain, OpenAI API
 
 ## 👥 Team
 - **Additya Singhal** - [GitHub](#) | [LinkedIn](#)
-- **Teammate 2** - [GitHub](#) | [LinkedIn](#)
+- **Amisha Sinha** - [GitHub](#) | [LinkedIn](#)
+- **Anubhav Srivastava** - [GitHub](#) | [LinkedIn](#)
+- **Anusha Panchumarthi** - [GitHub](#) | [LinkedIn](#)
+- **Gaurang Rastogi** - [GitHub](#) | [LinkedIn](#)
