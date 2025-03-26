@@ -168,30 +168,29 @@ class GitHubToolkit:
     def generate_tools(self):
         get_all_repo_names_tool = StructuredTool.from_function(
             self.get_all_repo_names,
-            name="get_all_repositories_in_organization",  # Updated name
-            description="Get all repository names in the organization. This organization is the only set of repositories you have access to.",
+            description="Get all repository names in the organization. This tool retrieves the names of all repositories within the specified organization. It is useful for understanding the scope of available repositories and identifying which repositories you can interact with.",
             args_schema=NoInputSchema  # Use no-input schema
         )
 
         get_repo_file_structure_tool = StructuredTool.from_function(
             self.get_repo_file_structure,
             name="get_repository_file_structure",  # Updated name
-            description="Get the file structure of a repository in array form. This structure tells you the list of files in the given repo. It is useful when you want to see what files are there to be read",
+            description="Get the file structure of a repository in array form. This tool retrieves the hierarchical structure of files and directories within a specified repository. It is useful for understanding the organization of the repository, identifying files of interest, and determining the overall layout of the project.",
             args_schema=RepoNameSchema
         )
 
         get_repo_pr_list_tool = StructuredTool.from_function(
             self.get_repo_pr_list,
             name="get_all_pull_requests_in_repository",  # Updated name
-            description="Get the list of pull requests in a repository",
+            description="Get the list of pull requests in a repository. This tool retrieves all pull requests (open, closed, and merged) for a specified repository. It is useful for reviewing the history of changes, understanding ongoing work, and identifying contributions to the repository.",
             args_schema=RepoNameSchema
         )
 
         fetch_pr_details_tool = StructuredTool.from_function(
             self.fetch_pr_details,
             name="fetch_pr_details",  # Updated name
-            description="Get the details for a pull request including its current state and its file information",
-            args_schema=PRSchema
+            description="Fetch detailed information about a specific pull request in a repository. This tool retrieves the pull request's title, number, state (open or closed), description, the list of files changed (including their patches), and all comments associated with the pull request. It is useful for reviewing the changes made in a pull request, understanding its context, and analyzing the feedback provided by reviewers.",
+            args_schema=PRSchema  # Schema specifying the repository name and pull request number as inputs
         )
 
         get_file_contents_tool = StructuredTool.from_function(
@@ -204,35 +203,35 @@ class GitHubToolkit:
         create_bdd_repo_using_template_tool = StructuredTool.from_function(
             self.create_bdd_repo_using_template,
             name="create_bdd_test_suite_repo",  # Updated name
-            description="Creates a new repository for BDD testing using a template repository",
+            description="Creates a new repository for Behavior-Driven Development (BDD) testing using a predefined template repository. This tool is useful for quickly setting up a standardized BDD test suite in a new repository, ensuring consistency and saving time.",
             args_schema=RepoNameSchema
         )
 
         fork_repo_tool = StructuredTool.from_function(
             self.fork_repo,
             name="fork_repository",  # New tool name
-            description="Forks a repository",
+            description="Forks a specified repository. Useful for creating a personal copy of a repository for experimentation or contributions.",
             args_schema=RepoNameSchema
         )
 
         push_commits_to_fork_tool = StructuredTool.from_function(
             self.push_commits_to_fork,
             name="push_commits_to_fork",  # New tool name
-            description="Pushes commits to a forked repository",
+            description="Pushes commits to a forked repository. Useful for updating the fork with new changes or preparing for a pull request.",
             args_schema=CreateCommitSchema  # Correct schema for repo_name, filename, and content
         )
 
         raise_pr_from_fork_tool = StructuredTool.from_function(
             self.raise_pr_from_fork,
             name="raise_pr_from_fork",  # New tool name
-            description="Raises a pull request from a forked repository with a good descriptive title",
+            description="Creates a pull request from a forked repository with a good descriptive title. Useful for contributing changes back to the original repository.",
             args_schema=RaisePRSchema  # Correct schema for repo_name and title
         )
 
         delete_fork_tool = StructuredTool.from_function(
             self.delete_fork,
             name="delete_forked_repository",  # Updated name
-            description="Deletes a forked repository",
+            description="Deletes a forked repository. Useful for cleanup after completing work on a fork.",
             args_schema=DeleteForkSchema
         )
 

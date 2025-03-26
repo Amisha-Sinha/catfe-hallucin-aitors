@@ -130,7 +130,7 @@ class MemoryTools:
             StructuredTool.from_function(
                 self.recall_memory,
                 name="RecallMemory",
-                description="MUST USE FIRST FOR ANY QUESTION. Returns stored memories matching the query",
+                description="MUST USE FIRST FOR ANY QUESTION. This tool retrieves stored memories that match the provided query, ensuring relevant information is surfaced efficiently.",
                 args_schema=self.RecallMemorySchema
             )
         ]

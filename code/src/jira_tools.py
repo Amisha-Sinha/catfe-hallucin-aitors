@@ -84,14 +84,14 @@ class JIRAToolkit:
         get_ticket_details_tool = StructuredTool.from_function(
             self.get_ticket_details,
             name = "get_ticket_details",
-            description="Given a ticket id, return the title and description",
+            description="Given a ticket ID, retrieves the title and description of the specified Jira ticket. This tool is useful for fetching detailed information about a single ticket to understand its purpose and context.",
             args_schema=TicketSchema
         )
 
         get_all_tickets_for_current_sprint_tool = StructuredTool.from_function(
             self.get_all_tickets_for_current_sprint,
             name = "get_all_tickets_for_current_sprint",
-            description="Returns title and description of all tickets in the current sprint. This does not require any arguments",
+            description="Retrieves the title and description of all tickets in the current sprint. This tool does not require any arguments and is useful for obtaining an overview of all active tickets in the current sprint.",
             args_schema = NoInputSchema
         )
 
