@@ -65,6 +65,10 @@ The project was inspired by the need to simplify the creation and upkeep of BDD 
    ```sh
    python src/main.py
    ```
+5. To run ui go to /ui
+   ```sh
+   npm run dev
+   ```
 
 ## 🏗️ Tech Stack
 - 🔹 **Backend**: Flask, Python
