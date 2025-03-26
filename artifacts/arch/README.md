@@ -1,3 +1,5 @@
-Replace this file with a document that describes the architecture and design of your solution architecture. This may include
-    - An architecture drawing exported into a png/jpeg format image
-    - A document in pdf or md format that describes your solution
+## Architecture
+
+The architecture and design details of the solution can be found at the following URL:
+
+[Architecture Diagram and Documentation](https://docs.google.com/presentation/d/16klVNXX4uKVC8XxEt5mELdikz8nVor4N3uA5cI1be7c/edit)

@@ -17,11 +17,8 @@
 *Behave Yourself* is an AI-driven platform designed to assist developers in creating and maintaining Behavior-Driven Development (BDD) test suites. It integrates with GitHub and JIRA to streamline the process of managing repositories and tasks.
 
 ## 🎥 Demo
-🔗 [Live Demo](#) (if applicable)  
-📹 [Video Demo](#) (if applicable)  
-🖼️ Screenshots:
-
-![Screenshot 1](link-to-image)
+📹 [Video Demo](https://drive.google.com/file/d/1LNvaQby6qRmAEImGjKTyE2e8BexkL16U/view)  
+🖼️ Screenshots: (https://docs.google.com/presentation/d/16klVNXX4uKVC8XxEt5mELdikz8nVor4N3uA5cI1be7c/edit)
 
 ## 💡 Inspiration
 The project was inspired by the need to simplify the creation and upkeep of BDD test repositories, ensuring seamless integration with existing workflows.
