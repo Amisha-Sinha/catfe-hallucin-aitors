@@ -14,7 +14,7 @@
 ---
 
 ## 🎯 Introduction
-Behave Yourself is an AI-driven platform designed to assist developers in creating and maintaining Behavior-Driven Development (BDD) test suites. It integrates with GitHub and JIRA to streamline the process of managing repositories and tasks.
+*Behave Yourself* is an AI-driven platform designed to assist developers in creating and maintaining Behavior-Driven Development (BDD) test suites. It integrates with GitHub and JIRA to streamline the process of managing repositories and tasks.
 
 ## 🎥 Demo
 🔗 [Live Demo](#) (if applicable)  
@@ -74,8 +74,8 @@ The project was inspired by the need to simplify the creation and upkeep of BDD 
 - 🔹 **Other Tools**: LangChain, OpenAI API
 
 ## 👥 Team
-- **Additya Singhal** - [GitHub](#) | [LinkedIn](#)
-- **Amisha Sinha** - [GitHub](#) | [LinkedIn](#)
-- **Anubhav Srivastava** - [GitHub](#) | [LinkedIn](#)
-- **Anusha Panchumarthi** - [GitHub](#) | [LinkedIn](#)
-- **Gaurang Rastogi** - [GitHub](#) | [LinkedIn](#)
+- **Additya Singhal** - [GitHub](https://github.com/UnknownAbyss) | [LinkedIn](https://www.linkedin.com/in/addityasinghal/)
+- **Amisha Sinha** - [GitHub](https://github.com/Amisha-Sinha) | [LinkedIn](https://www.linkedin.com/in/amisha-sinha-202730240/)
+- **Anubhav Srivastava** - [GitHub](https://github.com/Anubhav0611) | [LinkedIn](https://www.linkedin.com/in/ashrivastava1110/)
+- **Anusha Panchumarthi** - [GitHub](https://github.com/Anusha-Panchumarthi) | [LinkedIn](https://www.linkedin.com/in/anusha-panchumarthi-bb161a229/)
+- **Gaurang Rastogi** - [GitHub](https://github.com/GaurangRastogi) | [LinkedIn](https://www.linkedin.com/in/gaurangrastogi209/)
